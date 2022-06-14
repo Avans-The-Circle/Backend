@@ -1,0 +1,6 @@
+{
+    "type": "module",
+    "dependencies": {
+        "solid-bucket": "^2.1.1"
+    }
+}
