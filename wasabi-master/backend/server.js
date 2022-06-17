@@ -7,7 +7,7 @@ const unlinkFile = util.promisify(fs.unlink)
 const multer = require('multer')
 const upload = multer({ dest: 'uploads/' })
 
-const { uploadFile, getFileStream } = require('./s3')
+const { uploadFile, readFile } = require('./wasabi')
 
 const app = express()
 
@@ -23,10 +23,8 @@ app.post('/images', upload.single('image'), async (req, res) => {
   const file = req.file
   console.log(file)
 
-  // apply filter
-  // resize 
+  await uploadFile(file)
 
-  const result = await uploadFile(file)
   /* await unlinkFile(file.path)
   console.log(result)
   const description = req.body.description

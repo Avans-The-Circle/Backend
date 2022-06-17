@@ -1,6 +1,4 @@
 require('dotenv').config()
-const fs = require('fs')
-const S3 = require('aws-sdk/clients/s3')
 const SolidBucket = require('solid-bucket')
 
 const bucketName = process.env.AWS_BUCKET_NAME
@@ -13,18 +11,11 @@ let provider = new SolidBucket('wasabi', {
   secretAccessKey: secretAccessKey,
 })
 
-// uploads a file to s3
+// Uploads a file to Wasabi
 function uploadFile(file) {
-  //const fileStream = fs.createReadStream(file.path)
 
-  /* const uploadParams = {
-    Bucket: bucketName,
-    Body: fileStream,
-    Key: file.filename
-  } */
-
-  let filePath = 'C:/Users/markg/OneDrive/Pictures/Afbeeldingen/IDK/f037ffa294e3f17.png'
-  provider.uploadFile(bucketName, filePath).then((resp) => {
+  let filePath = 'C:/Users/markg/OneDrive/Pictures/Afbeeldingen/Wallpapers/tempsnip.png'
+  /* provider.uploadFile(bucketName, filePath).then((resp) => {
       if (resp.status === 200) {
           console.log(resp.message) 
           // Output: Bucket "example" was uploaded successfully
@@ -34,21 +25,25 @@ function uploadFile(file) {
           console.log(resp.message) 
           // Output: Some error coming from the provider...
       }
-  })
+  }) */
+
+  let baseURL = 'https://s3.eu-central-1.wasabisys.com/circle-test-bucket/'
+  let URL = baseURL.concat(filePath.substring(filePath.lastIndexOf('/') + 1)) 
+  console.log(URL)
 }
 exports.uploadFile = uploadFile
 
 
-// downloads a file from s3
+// Gets URL of an object from Wasabi.
 function readFile(fileKey) {
   const downloadParams = {
     Key: fileKey,
     Bucket: bucketName
   }
 
-  let remoteFilename = 'f037ffa294e3f17.png'
+  let remoteFilename = 'tempsnip.png'
 
-  return provider.readFile(bucketName, remoteFilename).then((resp) => {
+ /*  provider.readFile(bucketName, remoteFilename).then((resp) => {
       if (resp.status === 200) {
           console.log(resp.message) 
           // Output: Object "example.txt" was fetched successfully from bucket "example"
@@ -58,6 +53,18 @@ function readFile(fileKey) {
           console.log(resp.message)
           // Output: Some error coming from the provider...
       }
-  })
+  }) */
+
+  provider.getListOfFiles(bucketName).then((resp) => {
+    if (resp.status === 200) {
+        console.log(resp.message) 
+        // Output: The list of objects was fetched successfully from bucket "example"
+    }
+}).catch((resp) => {
+    if (resp.status === 400){
+        console.log(resp.message)
+        // Output: Some error coming from the provider...
+    }
+})
 }
 exports.readFile = readFile
