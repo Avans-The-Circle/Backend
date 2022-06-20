@@ -5,6 +5,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
 var indexRouter = require("./routes/index");
+const { encodeVideo } = require("./test");
 var app = express();
 
 app.engine("html", require("ejs").renderFile);
@@ -19,5 +20,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
+
+await encodeVideo()
 
 module.exports = app;
