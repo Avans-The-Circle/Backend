@@ -1,5 +1,6 @@
 require('dotenv').config()
 const SolidBucket = require('solid-bucket')
+const hbjs = require('handbrake-js')
 
 const bucketName = process.env.AWS_BUCKET_NAME
 const region = process.env.AWS_BUCKET_REGION
@@ -11,11 +12,39 @@ let provider = new SolidBucket('wasabi', {
   secretAccessKey: secretAccessKey,
 })
 
-// Uploads a file to Wasabi
+function encodeFile(filePath){
+
+    let inputVideoPath = filePath
+    let basePath = 'encodedVideos/'
+    let outputVideoPath = basePath.concat(filePath.substring(filePath.lastIndexOf('/') + 1)) 
+
+    hbjs.spawn({ input: inputVideoPath, output: outputVideoPath })
+    .on('error', err => {
+        console.log('Werkt niet man.')
+        // invalid user input, no video found etc
+    })
+    .on('begin', err => {
+        console.log('Begin.')
+    })
+    .on('progress', progress => {
+        console.log(
+        'Percent complete: %s, ETA: %s',
+        progress.percentComplete,
+        progress.eta
+        )
+    })
+    .on('end', progress => {
+        console.log('EZ PZ')
+    })
+}
+exports.encodeFile = encodeFile
+
+// Uploads a file to the Wasabi cloud data storage.
 function uploadFile(file) {
 
-  let filePath = 'C:/Users/markg/OneDrive/Pictures/Afbeeldingen/Wallpapers/tempsnip.png'
-  /* provider.uploadFile(bucketName, filePath).then((resp) => {
+  let filePath = file
+
+   provider.uploadFile(bucketName, filePath).then((resp) => {
       if (resp.status === 200) {
           console.log(resp.message) 
           // Output: Bucket "example" was uploaded successfully
@@ -25,46 +54,32 @@ function uploadFile(file) {
           console.log(resp.message) 
           // Output: Some error coming from the provider...
       }
-  }) */
+  }) 
 
   let baseURL = 'https://s3.eu-central-1.wasabisys.com/circle-test-bucket/'
   let URL = baseURL.concat(filePath.substring(filePath.lastIndexOf('/') + 1)) 
-  console.log(URL)
+  console.log('The public URL for accessing the uploaded file is: '+ URL)
 }
 exports.uploadFile = uploadFile
 
 
-// Gets URL of an object from Wasabi.
-function readFile(fileKey) {
-  const downloadParams = {
-    Key: fileKey,
-    Bucket: bucketName
-  }
+// Downloads a file from the Wasabi cloud data storage.
+function downloadFile(fileKey) {
 
-  let remoteFilename = 'tempsnip.png'
+    remoteFilename = fileKey
+    basedownloadedFilePath = 'downloads/'
+    downloadedFilePath = basedownloadedFilePath.concat(remoteFilename)
 
- /*  provider.readFile(bucketName, remoteFilename).then((resp) => {
-      if (resp.status === 200) {
-          console.log(resp.message) 
-          // Output: Object "example.txt" was fetched successfully from bucket "example"
-      }
-  }).catch((resp) => {
-      if (resp.status === 400){
-          console.log(resp.message)
-          // Output: Some error coming from the provider...
-      }
-  }) */
-
-  provider.getListOfFiles(bucketName).then((resp) => {
-    if (resp.status === 200) {
-        console.log(resp.message) 
-        // Output: The list of objects was fetched successfully from bucket "example"
-    }
-}).catch((resp) => {
-    if (resp.status === 400){
-        console.log(resp.message)
-        // Output: Some error coming from the provider...
-    }
-})
+    provider.downloadFile(bucketName, remoteFilename, downloadedFilePath).then((resp) => {
+        if (resp.status === 200) {
+            console.log(resp.message) 
+            // Output: Bucket "example" was deleted successfully
+        }
+    }).catch((resp) => {
+        if (resp.status === 400){
+            console.log(resp.message) 
+            // Output: Some error coming from the provider...
+        }
+    })
 }
-exports.readFile = readFile
+exports.downloadFile = downloadFile

@@ -16,7 +16,10 @@
     "http-errors": "^2.0.0",
     "jade": "^1.11.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "aws-sdk": "^2.853.0",
+    "multer": "^1.4.2",
+    "solid-bucket": "^2.1.1"
   },
   "devDependencies": {
     "mocha": "^9.1.3"
