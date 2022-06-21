@@ -5,10 +5,14 @@ const unlinkFile = util.promisify(fs.unlink)
 const multer = require('multer')
 const upload = multer({ dest: 'uploads/' })
 const { encodeFile, uploadFile, downloadFile } = require('./wasabi')
+const bodyParser = require('body-parser')
+const cors = require('cors')
 
 const app = express()
-
-
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(cors());
+const dotenv = require('dotenv')
 
 app.get('/images/:key', (req, res) => {
   console.log(req.params)
@@ -32,5 +36,12 @@ app.post('/images', upload.single('image'), async (req, res) => {
   uploadFile(encodedFile)
   //downloadFile(encodedFile)
 })
+const connectDB = require('./config/db')
 
-app.listen(8080, () => console.log("listening on port 8080"))
+//Routes
+app.use('/', require('./routes/index'));
+//Load Config
+dotenv.config({ path: './config/config.env' });
+
+connectDB();
+app.listen(8050, () => console.log("listening on port 8080"))
