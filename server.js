@@ -1,14 +1,22 @@
-// reads the .env file and stores it as environment variables, use for config
-require("dotenv").config();
+const express = require('express')
+const fs = require('fs')
+const util = require('util')
 
-const app = require("./src/app");
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const app = express()
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(cors());
+const dotenv = require('dotenv')
 
-// the order of starting the app and connecting to the database does not matter
-// since mongoose buffers queries till there is a connection
 
-// start the app
-const port = process.env.PORT;
-console.log("Trying to connect on port ", port);
-app.listen(port, () => {
-  console.log(`server is listening on port ${port}`);
-});
+const connectDB = require('./config/db')
+
+//Routes
+app.use('/', require('./routes/index'));
+//Load Config
+dotenv.config({ path: './config/config.env' });
+
+connectDB();
+app.listen(8050, () => console.log("listening on port 8080"))
