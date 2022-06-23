@@ -19,4 +19,5 @@ app.use('/', require('./routes/index'));
 dotenv.config({ path: './config/config.env' });
 
 connectDB();
-app.listen(8050, () => console.log("listening on port 8080"))
+const port = process.env.PORT || 8050;
+app.listen(port, () => console.log("listening on port " + port))
